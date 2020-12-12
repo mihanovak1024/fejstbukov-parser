@@ -1,11 +1,53 @@
 javascript:(function () {
+
+	/******** CONSTANTS *********/
+
 	var SHOW_REPLY_TIMEOUT_MILLIS = 400;
 	var SHOW_REPLY_LOAD_DELAY_MILLIS = 500;
+
+	/****** CLASS/ID NAMES ******/
 
 	/* Replies */
 	var REPLY_CLASS_NAME = 'div._2b1h, .async_elem';
 	var REPLY_ATTRIBUTE = 'data-sigil';
 	var REPLY_SEE_MORE_ATTRIBUTE_VALUE = 'replies-see-more';
+
+	/* Header stuff */
+	var HEADER_NOTICES = 'header-notices';
+	/* search|posts|photos|groups|pages|...*/
+	var SEARCH_BAR = 'm:chrome:schedulable-graph-search';
+	var CHROME_HEADER = 'MChromeHeader';
+	/* like|comment buttons */
+	var LIKE_COMMENT_BUTTONS = 'footer';
+	/* remove More options (...) */
+	var MORE_OPTIONS = 'div._5s61._2pis';
+
+	/* User stuff */
+	var WRITE_A_COMMENT = 'div._uwt._45kb._3ioy';
+	var I_BET_IT_WAS_SOMETHING_REDUNDANT_AT_SOME_POINT = 'div._uwt._3ioy.async_composer._4m0q';
+	var HIDDEN_ELEMENT = 'hidden_elem';
+
+	/* Footer stuff */
+	/* mute message | loading messages | reaction comment stuff | ... */
+	var LOADING_MESSAGES = 'flyout-nocontext-root';
+	var STATIC_TEMPLATES = 'static_templates';
+	var VIEWPORT_AREA_NR1 = 'u_0_e';
+	var VIEWPORT_AREA_NR2 = 'mErrorView';
+	/* View timeline | Add to group | Invite to Event */
+	var POPUP_BUTTONS = 'div._5ar5';
+
+
+	/****** REGEX STATEMENTS *****/
+	var LINK_STYLESHEET_REGEX = new RegExp(/<link (type=\"text\/css\"|rel=\"stylesheet\").+?>/, 'g');
+	var ACTOR_ID_REGEX = new RegExp(/actor_id\&quot;:(.+?),/, 'g');
+	var ACTOR_NAME_REGEX = new RegExp(/actor_name\&quot;:\&quot;(.+?)\&quot;/, 'g');
+	var FACEBOOK_LINK_WRAPPER_REGEX = new RegExp(/<a href=\"https?:\/\/lm\.facebook\.com\/l\.php\?u=(.+?)\%(3F|26)fbclid.+?\"/, 'g');
+	var TIME_LIKE_REPLY_MORE_REGEX = new RegExp(/<div class=\"_2b08 _4ghu\".+?>More<\/a><\/div>/, 'g');
+	var USER_LINK_URLS_REGEX = new RegExp(/href=\"(\/.+?)(\&amp;.+?\"|\")/, 'g');
+	var SCRIPT_REGEX = new RegExp(/<script.+?(<\/script>|\/>)/, 'g');
+	var LINK_SCRIPT_REGEX = new RegExp(/<link[^>]+?\"script\".+?>/, 'g');
+
+	/********* FUNCTIONS *********/
 
 	/* Expands hidden replies */
 	async function showRepliesAsync() {
@@ -49,55 +91,42 @@ javascript:(function () {
 		});
 	}
 
-	function getStylesheets() {
-		var html = document.documentElement.innerHTML;
-		var stylesheet = [];
-		Array.from(html.matchAll(/<link (type=\"text\/css\"|rel=\"stylesheet\").+?>/g)).forEach(item => {
-			stylesheet.push(item[0]);
-		});
-		return stylesheet;
-	}
-
-	function getBody() {
-		return document.getElementsByTagName('body')[0].outerHTML;
-	}
-
+	/* Remove document stuff from upper part of the body */
 	function removeDocumentHeader() {
-		replaceOuterHTMLById("header-notices");
-		replaceOuterHTMLById("m:chrome:schedulable-graph-search");
-		replaceOuterHTMLById("MChromeHeader");
-		/* remove like|comment buttons */
-		replaceOuterHTMLByClassName("footer");
-		/* remove More options (...) */
-		replaceOuterHTMLByClassName("div._5s61._2pis");
+		replaceOuterHTMLById(HEADER_NOTICES);
+		replaceOuterHTMLById(SEARCH_BAR);
+		replaceOuterHTMLById(CHROME_HEADER);
+		replaceOuterHTMLByClassName(LIKE_COMMENT_BUTTONS);
+		replaceOuterHTMLByClassName(MORE_OPTIONS);
 	}
 
-	function removeDocumentCurrentUserStuff() {
-		replaceOuterHTMLByClassName("div._uwt._3ioy.async_composer._4m0q");
-		replaceOuterHTMLByClassName("div._uwt._45kb._3ioy");
-		replaceOuterHTMLByClassName("hidden_elem");
+	function removeDocumentMiddleStuff() {
+		replaceOuterHTMLByClassName(I_BET_IT_WAS_SOMETHING_REDUNDANT_AT_SOME_POINT);
+		replaceOuterHTMLByClassName(WRITE_A_COMMENT);
+		replaceOuterHTMLByClassName(HIDDEN_ELEMENT);
 	}
 
-	function removeDocumentBottomStuff() {
-		replaceOuterHTMLById("flyout-nocontext-root");
-		replaceOuterHTMLById("static_templates");
-		replaceOuterHTMLById("u_0_e");
-		replaceOuterHTMLById("mErrorView");
-		replaceOuterHTMLByClassName("div._5ar5");
+	function removeDocumentFooterStuff() {
+		replaceOuterHTMLById(LOADING_MESSAGES);
+		replaceOuterHTMLById(STATIC_TEMPLATES);
+		replaceOuterHTMLById(VIEWPORT_AREA_NR1);
+		replaceOuterHTMLById(VIEWPORT_AREA_NR2);
+		replaceOuterHTMLByClassName(POPUP_BUTTONS);
 	}
 
+	/* Removes stuff from the window.document element */
 	function removeDocumentStuff() {
 		removeDocumentHeader();
-		removeDocumentCurrentUserStuff();
-		removeDocumentBottomStuff();
+		removeDocumentMiddleStuff();
+		removeDocumentFooterStuff();
 	}
 
-	function removeCurrentUserStuff(body) {
-		var actorId = Array.from(body.matchAll("actor_id\&quot;:(.+?),"))[0][1];
-		var actorName = Array.from(body.matchAll("actor_name\&quot;:\&quot;(.+?)\&quot;"))[0][1];
+	/* Removes user id (actorId) and user name and surname (actorName) from the whole HTML */
+	function replaceCurrentUserDetails(body) {
+		var actorId = body.match(ACTOR_ID_REGEX)[1];
+		var actorName = body.match(ACTOR_NAME_REGEX)[1];
 
-		console.log("actorId = " + actorId);
-		console.log("actorName = " + actorName);
+		console.log("Remove user details = [{actorId=" + actorId + "}, {actorName=" + actorName + "}]");
 
 		var actorIdRegex = new RegExp(actorId, "g");
 		var actorNameRegex = new RegExp(actorName, "g");
@@ -107,37 +136,35 @@ javascript:(function () {
 
 	function replaceLinks(body) {
 		/* replace external links with direct external links (without lm.facebook redirect)*/
-		body = body.replace(/<a href=\"https?:\/\/lm\.facebook\.com\/l\.php\?u=(.+?)\%(3F|26)fbclid.+?\"/g, function(a, b) {
-    		console.log("a = " + a);
-			console.log("b = " + b);
- 			return "<a href=\"" + decodeURIComponent(b) + "\"";
+		body = body.replace(FACEBOOK_LINK_WRAPPER_REGEX, function(fullString, matchedEncodedLink) {
+ 			return "<a href=\"" + decodeURIComponent(matchedEncodedLink) + "\"";
  		});
-
-		console.log("replaced external links");
+		console.log("Replace Facebook wrapper external links");
 
 		/* remove time|like|reply|more */
-		body = body.replace(/<div class=\"_2b08 _4ghu\".+?>More<\/a><\/div>/g, "");
+		body = body.replace(TIME_LIKE_REPLY_MORE_REGEX, "");
 
-		/* replace user urls with full path (ads facebook host name) */
-		body = body.replace(/href=\"(\/.+?)(\&amp;.+?\"|\")/g, function(a, b, c) {
-			return "href=\"https://www.facebook.com" + b + "\"";
+		/* add Facebook host name to user urls */
+		body = body.replace(USER_LINK_URLS_REGEX, function(fullString, userLinkUrl, redundantString) {
+			return "href=\"https://www.facebook.com" + userLinkUrl + "\"";
 		});
 
+		/* replace mobile facebook urls with desktop facebook urls */
 		body = body.replace("m.facebook.com", "www.facebook.com");
 
 		return body;
 	}
 
-	function replaceScriptStuff(body) {
+	function replaceScripts(body) {
 		/* remove scripts */
-		body = body.replace(/<script.+?(<\/script>|\/>)/g, "");
+		body = body.replace(SCRIPT_REGEX, "");
 		
 		/* remove script links */
-		body = body.replace(/<link[^>]+?\"script\".+?>/g, "");
+		body = body.replace(LINK_SCRIPT_REGEX, "");
 		return body;
 	}
 
-	/* HELPER FUNCTIONS */
+	/******* HELPER FUNCTIONS ******/
 
 	function replaceOuterHTMLByClassName(className) {
 		Array.from(document.querySelectorAll(className)).forEach(item => {
@@ -152,8 +179,22 @@ javascript:(function () {
 		}
 	}
 
-	function assembleNewHtml(body) {
-		var stylesheets = getStylesheets();
+	/* Retrieves the stylesheet links from the header */
+	function getLinkStylesheets() {
+		var html = document.documentElement.innerHTML;
+		var linkStylesheetList = [];
+		Array.from(html.matchAll(LINK_STYLESHEET_REGEX)).forEach(item => {
+			linkStylesheetList.push(item[0]);
+		});
+		return linkStylesheetList;
+	}
+
+	function getBody() {
+		return document.getElementsByTagName('body')[0].outerHTML;
+	}
+
+	function assembleRefactoredHtml(body) {
+		var stylesheets = getLinkStylesheets();
 
 		var newHtml = "<html><head>";
 		stylesheets.forEach(item => {
@@ -165,20 +206,20 @@ javascript:(function () {
 		return newHtml;
 	}
 
-	async function init() {
+	/********* STARTING POINT *******/
+
+	async function letsGetThisPartyStarted() {
 		await showRepliesAsync();
 
-		/* Wait for replies */
 		removeDocumentStuff();
-
 		var body = getBody();
-		body = removeCurrentUserStuff(body);
+		body = replaceCurrentUserDetails(body);
 		body = replaceLinks(body);
-		body = replaceScriptStuff(body);
+		body = replaceScripts(body);
 
-		var newHtml = assembleNewHtml(body);
-		document.documentElement.innerHTML = newHtml;
+		var refactoredHtml = assembleRefactoredHtml(body);
+		document.documentElement.innerHTML = refactoredHtml;
 	}
 
-	init();
+	letsGetThisPartyStarted();
 })();
