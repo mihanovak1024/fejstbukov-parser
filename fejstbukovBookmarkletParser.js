@@ -1,16 +1,52 @@
 javascript:(function () {
-	var i = 1;
+	var SHOW_REPLY_TIMEOUT_MILLIS = 400;
+	var SHOW_REPLY_LOAD_DELAY_MILLIS = 500;
 
-	/* Expand hidden replies */
-	function showReplies() {
-		Array.from(document.querySelectorAll('div._2b1h, .async_elem')).filter(item => item.getAttribute('data-sigil') == 'replies-see-more').forEach(item => { 
-			window.setTimeout(function() {
-				item.firstElementChild.click();
-				console.log("reply clicked");
-			}, 400 * i++);
-			console.log("reply shown");
+	/* Replies */
+	var REPLY_CLASS_NAME = 'div._2b1h, .async_elem';
+	var REPLY_ATTRIBUTE = 'data-sigil';
+	var REPLY_SEE_MORE_ATTRIBUTE_VALUE = 'replies-see-more';
+
+	/* Expands hidden replies */
+	async function showRepliesAsync() {
+		console.log("Showing replies");
+		console.time("Replies shown");
+
+		/* Array with only valid reply nodes */
+		var replyArray = Array.from(document.querySelectorAll(REPLY_CLASS_NAME)).filter(item => item.getAttribute(REPLY_ATTRIBUTE) == REPLY_SEE_MORE_ATTRIBUTE_VALUE);
+		
+		var numberOfReplies = replyArray.length;
+		var replyIndex = 0;
+		
+		var lastClick;
+		replyArray.forEach(replyNode => { 
+			lastClick = clickReplyDelayed(replyIndex++, numberOfReplies, replyNode);
 		});
-		console.log("continued");
+
+		await lastClick;
+		await loadDelay();
+		console.timeEnd("Replies shown");
+	}
+
+	/* Clicks reply in a delayed manner */
+	function clickReplyDelayed(replyIndex, numberOfReplies, replyNode) {
+		return new Promise(clickFun => {
+				setTimeout(() => {
+					replyNode.firstElementChild.click();
+					console.log("Reply clicked = " + (replyIndex+1) + "/" + numberOfReplies);
+					clickFun();
+				}, SHOW_REPLY_TIMEOUT_MILLIS * replyIndex)
+			});
+	}
+
+	/* Add a delay for the last reply to load fully*/
+	function loadDelay() {
+		return new Promise(loadDelay => {
+			setTimeout(() => {
+				console.log("Load delay finished");
+				loadDelay();
+			}, SHOW_REPLY_LOAD_DELAY_MILLIS);
+		});
 	}
 
 	function getStylesheets() {
@@ -129,23 +165,19 @@ javascript:(function () {
 		return newHtml;
 	}
 
-	function init() {
-		showReplies();
-		console.log("showed replies");
+	async function init() {
+		await showRepliesAsync();
 
 		/* Wait for replies */
-		window.setTimeout(function() {
-			removeDocumentStuff();
+		removeDocumentStuff();
 
-			var body = getBody();
-			body = removeCurrentUserStuff(body);
-			body = replaceLinks(body);
-			body = replaceScriptStuff(body);
+		var body = getBody();
+		body = removeCurrentUserStuff(body);
+		body = replaceLinks(body);
+		body = replaceScriptStuff(body);
 
-			var newHtml = assembleNewHtml(body);
-			document.documentElement.innerHTML = newHtml;
-		}, i * 400);
-
+		var newHtml = assembleNewHtml(body);
+		document.documentElement.innerHTML = newHtml;
 	}
 
 	init();
