@@ -15,7 +15,7 @@ but retains the functionality of accesing specific user accounts only by being l
 - the parsed HTML document is downloaded into a local file named "post-[timestampOfParsing].html"
 
 ## Use :sunglasses:
-1. :scissors: the contents of the [fejstbukovParserBookmarklet.js](../blob/main/fejstbukovParserBookmarklet.js) and :floppy_disk: it into a Bookmark.
+1. :scissors: the contents of the [fejstbukovParserBookmarklet.js](../main/fejstbukovParserBookmarklet.js) and :floppy_disk: it into a Bookmark.
 2. Go to desired Fejstbuk post
 3. :boom: Click the created Bookmark :boom:
 4. Find the HTML document in the default browser's download folder
