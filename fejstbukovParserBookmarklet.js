@@ -216,6 +216,8 @@ javascript:(function () {
 	/********* STARTING POINT *******/
 
 	async function letsGetThisPartyStarted() {
+		console.timeEnd("Page Loaded");
+		console.log("Start parsing");
 		await showRepliesAsync();
 
 		removeDocumentStuff();
@@ -228,5 +230,9 @@ javascript:(function () {
 		document.documentElement.innerHTML = refactoredHtml;
 	}
 
-	letsGetThisPartyStarted();
+	console.log("Script injected");
+	console.time("Page Loaded");
+
+	/* Start the script once the page is fully loaded (along with its resources)*/
+	window.addEventListener('load', () => letsGetThisPartyStarted());
 })();
