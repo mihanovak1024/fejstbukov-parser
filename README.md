@@ -14,6 +14,12 @@ Mobile version of a single Fejstbuk post:
 - all redundant elements are removed (reply/comment edit texts, like/comment buttons, time divs,...)
 - the parsed HTML document is downloaded into a local file named "post-[timestampOfParsing].html"
 
+## Use
+1. Copy the contents of the [fejstbukovParserBookmarklet.js](../blob/main/fejstbukovParserBookmarklet.js) and save it into a Bookmark.
+2. Go to desired Fejstbuk post
+3. Click the created Bookmark
+4. Find the HTML document in the default browser's download folder
+
 ## Caveats
 - Only mobile version of the post is working
 - User needs to manually change the desktop url to mobile url of the post
