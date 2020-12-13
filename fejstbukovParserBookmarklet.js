@@ -216,7 +216,6 @@ javascript:(function () {
 	/********* STARTING POINT *******/
 
 	async function letsGetThisPartyStarted() {
-		console.timeEnd("Page Loaded");
 		console.log("Start parsing");
 		await showRepliesAsync();
 
@@ -228,11 +227,14 @@ javascript:(function () {
 
 		var refactoredHtml = assembleRefactoredHtml(body);
 		document.documentElement.innerHTML = refactoredHtml;
+		console.log("End parsing");
 	}
 
 	console.log("Script injected");
-	console.time("Page Loaded");
-
-	/* Start the script once the page is fully loaded (along with its resources)*/
-	window.addEventListener('load', () => letsGetThisPartyStarted());
+	if (document.readyState == 'complete') {
+		letsGetThisPartyStarted();
+	} else {
+		/* Start the script once the page is fully loaded (along with its resources)*/
+		window.addEventListener('load', () => letsGetThisPartyStarted());
+	}
 })();
