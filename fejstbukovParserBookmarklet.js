@@ -213,6 +213,24 @@ javascript:(function () {
 		return newHtml;
 	}
 
+	/* Download the file and save it locally */
+	function download(html) {
+		var filename = "post-" + Date.now() + ".html";
+
+		var element = document.createElement('a');
+		element.setAttribute('href', 'data:text/plain;charset=utf-8,' + 
+		encodeURIComponent(html));
+		element.setAttribute('download', filename);
+
+		 element.style.display = 'none';
+		 document.body.appendChild(element);
+
+		 element.click();
+
+		 document.body.removeChild(element);
+	}
+
+
 	/********* STARTING POINT *******/
 
 	async function letsGetThisPartyStarted() {
@@ -228,6 +246,9 @@ javascript:(function () {
 		var refactoredHtml = assembleRefactoredHtml(body);
 		document.documentElement.innerHTML = refactoredHtml;
 		console.log("End parsing");
+
+		console.log("Download");
+		download(refactoredHtml);
 	}
 
 	console.log("Script injected");
