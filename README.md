@@ -17,7 +17,7 @@ but retains the functionality of accesing specific user accounts only by being l
 ## Use :sunglasses:
 1. :scissors: the contents of the [fejstbukovParserBookmarklet.js](../main/fejstbukovParserBookmarklet.js) and :floppy_disk: it into a Bookmark.
 2. Go to desired Fejstbuk post
-3. Replace URL **www** part to **m**
+3. Replace URL **www** part with **m** (mobile version of the post)
 4. :boom: Click the created Bookmark :boom:
 5. Find the HTML document in the default browser's download folder
 6. ???
