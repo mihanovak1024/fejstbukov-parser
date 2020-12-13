@@ -3,7 +3,7 @@ javascript:(function () {
 	/******** CONSTANTS *********/
 
 	var SHOW_REPLY_TIMEOUT_MILLIS = 400;
-	var SHOW_REPLY_LOAD_DELAY_MILLIS = 500;
+	var SHOW_REPLY_LOAD_DELAY_MILLIS = 1000;
 
 	/****** CLASS/ID NAMES ******/
 
