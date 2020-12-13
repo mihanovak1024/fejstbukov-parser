@@ -23,6 +23,12 @@ but retains the functionality of accesing specific user accounts only by being l
 6. ???
 7. Profit :moneybag:
 
+## Preview :
+### Before:
+![alt text](../main/before.png "Before processing")
+### After:
+![alt text](../main/after.png "After processing")
+
 ## Caveats :grimacing:
 - Only mobile version of the post is working
 - User needs to manually change the desktop url to mobile url of the post
