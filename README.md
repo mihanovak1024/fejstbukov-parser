@@ -1,5 +1,9 @@
 # fejstbukov-parser
 ## Introduction
+Bookmarklet for Fejstbuk post parsing into a format non-registered users can read,
+but retains the functionality of accesing specific user accounts only by being logged in. 
+
+## Functionality
 Mobile version of a single Fejstbuk post:
 - is openned fully (replies/comments are expanded)
 - all external urls are unwrapped (no Fejstbuk redirections) and can be accessed directly
