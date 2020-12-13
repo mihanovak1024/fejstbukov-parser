@@ -3,7 +3,7 @@ javascript:(function () {
 	/******** CONSTANTS *********/
 
 	var SHOW_REPLY_TIMEOUT_MILLIS = 400;
-	var SHOW_REPLY_LOAD_DELAY_MILLIS = 500;
+	var SHOW_REPLY_LOAD_DELAY_MILLIS = 1000;
 
 	/****** CLASS/ID NAMES ******/
 
@@ -39,13 +39,16 @@ javascript:(function () {
 
 	/****** REGEX STATEMENTS *****/
 	var LINK_STYLESHEET_REGEX = new RegExp(/<link (type=\"text\/css\"|rel=\"stylesheet\").+?>/, 'g');
-	var ACTOR_ID_REGEX = new RegExp(/actor_id\&quot;:(.+?),/, 'g');
-	var ACTOR_NAME_REGEX = new RegExp(/actor_name\&quot;:\&quot;(.+?)\&quot;/, 'g');
 	var FACEBOOK_LINK_WRAPPER_REGEX = new RegExp(/<a href=\"https?:\/\/lm\.facebook\.com\/l\.php\?u=(.+?)\%(3F|26)fbclid.+?\"/, 'g');
 	var TIME_LIKE_REPLY_MORE_REGEX = new RegExp(/<div class=\"_2b08 _4ghu\".+?>More<\/a><\/div>/, 'g');
 	var USER_LINK_URLS_REGEX = new RegExp(/href=\"(\/.+?)(\&amp;.+?\"|\")/, 'g');
 	var SCRIPT_REGEX = new RegExp(/<script.+?(<\/script>|\/>)/, 'g');
 	var LINK_SCRIPT_REGEX = new RegExp(/<link[^>]+?\"script\".+?>/, 'g');
+	var ACTOR_NAME_REPLACE_REGEX = new RegExp(/actor_name\&quot;:\&quot;(.+?)\&quot;/, 'g');
+
+	/* Regex string */
+	var ACTOR_ID_REGEX = "actor_id\&quot;:(.+?),";
+	var ACTOR_NAME_REGEX = "actor_name\&quot;:\&quot;(.+?)\&quot;";
 
 	/********* FUNCTIONS *********/
 
@@ -130,7 +133,12 @@ javascript:(function () {
 
 		var actorIdRegex = new RegExp(actorId, "g");
 		var actorNameRegex = new RegExp(actorName, "g");
-		body = body.replace(actorIdRegex, "").replace(actorNameRegex, "");
+		/* replace ID through whole file */
+		body = body.replace(actorIdRegex, "");
+		/* Replace only Name in data (in case of current user actually commenting the post)*/
+		body = body.replace(ACTOR_NAME_REPLACE_REGEX, function(fullString, actorName) {
+			return fullString.replace(actorName, "");
+		});
 		return body;
 	}
 
@@ -205,9 +213,28 @@ javascript:(function () {
 		return newHtml;
 	}
 
+	/* Download the file and save it locally */
+	function download(html) {
+		var filename = "post-" + Date.now() + ".html";
+
+		var element = document.createElement('a');
+		element.setAttribute('href', 'data:text/plain;charset=utf-8,' + 
+		encodeURIComponent(html));
+		element.setAttribute('download', filename);
+
+		 element.style.display = 'none';
+		 document.body.appendChild(element);
+
+		 element.click();
+
+		 document.body.removeChild(element);
+	}
+
+
 	/********* STARTING POINT *******/
 
 	async function letsGetThisPartyStarted() {
+		console.log("Start parsing");
 		await showRepliesAsync();
 
 		removeDocumentStuff();
@@ -218,7 +245,17 @@ javascript:(function () {
 
 		var refactoredHtml = assembleRefactoredHtml(body);
 		document.documentElement.innerHTML = refactoredHtml;
+		console.log("End parsing");
+
+		console.log("Download");
+		download(refactoredHtml);
 	}
 
-	letsGetThisPartyStarted();
+	console.log("Script injected");
+	if (document.readyState == 'complete') {
+		letsGetThisPartyStarted();
+	} else {
+		/* Start the script once the page is fully loaded (along with its resources)*/
+		window.addEventListener('load', () => letsGetThisPartyStarted());
+	}
 })();
